@@ -76,13 +76,12 @@ or **attribute** value, using either decimal values or values
 
     // Pad configuration of programmable pins
     PROG_PINS_CFG_ELT: {
-        // For each PROGrammable pin in this section
+        // For each PROGrammable PIN in this section
         // SLEW_RATE sets the maximum slew rate on the pin. Type: integer value between 0 and 6 (6=max drive strength)
         // PULL_UP_DOWN allows to add a pull-up or pull-down on the pad. Type: enum = 'none', 'down', 'up'
         // SLEEP_CFG allows to add a pull-up or pull-down on the pad while in sleep mode. Type: enum = 'tri', 'down', 'up', 'maintain'
         //          for the case of pads used as gpio it is also possible to maintain the current driven gpio value
         // PIN_MODE allows to configure the pin in tristate, functionnal mode or gpio. Type: enum = 'tri', 'func', 'gpio'
-        // INTERNAL : mode also has following enums 'debug', 'clock'
         // GPIO_ID allows to assign a GPIO_ID to a given pin when configured as gpio. Type = char must be an UPPER case letter
         GPIO_FEM_1: {
             SLEW_RATE: 4,
