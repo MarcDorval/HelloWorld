@@ -2,11 +2,11 @@
 
 **P**latform **D**ata **S**et (**PDS**) files contain configuration values sent
  by the WFX driver to the WFX firmware, either at startup (for basic hardware
-  configuration) or during execution (the most typical case is using the TEST_FEATURE for RF testing).
+  configuration) or during execution (typical case: using TEST_FEATURE for RF testing).
 
 ## PDS flow
 For easy editing, PDS **node** and **attribute** values are stored in `.pds.in`  files in 
-human-readable format, with inline documentation. (Refer to this inline documentation for
+human-readable format, with inline documentation. (Refer to this documentation for
  details on nodes and attributes).
 
 To save time during execution, `.pds.in` files are compressed using the **pds_compress** 
@@ -23,15 +23,16 @@ Use `pds_compress [options] INPUT [OUTPUT]` to compress a `.pds.in` file to a `.
 ```
 
 ### Startup PDS file
-During WFX driver startup, right after the WFX firmware has been downloaded, the driver 
+During WFX driver startup, after WFX firmware download, the driver 
 sends the `.pds` file to the WFX firmware, 
 in order to configure the WFX hardware to match the application.
+
 * Startup PDS file name and location
 
 Linux LMAC driver | MCU FMAC WFX driver
 ---|---
-/lib/firmware/wf200.pds|[TBC] wf200.pds|
-can use symbolic links|[TBC]|
+/lib/firmware/wf200.pds|[TBC] wf200.pds
+can use symbolic links|[TBC]
 
 
 _PDS files can easily be edited with any text editor and benefit from code coloring and
@@ -43,13 +44,12 @@ This is typically useful when using the TEST_FEATURE to perform continuous Tx te
 
 Linux | MCU (TBD)
 ---|---
-`cat $PDSFILE /sys/kernel/debug/ieee80211/phy*/wfx/send_pds`||
-`pds_compress $PDSINFILE /sys/kernel/debug/ieee80211/phy*/wfx/send_pds`||
+`cat $PDSFILE /sys/kernel/debug/ieee80211/phy*/wfx/send_pds`|
+`pds_compress $PDSINFILE /sys/kernel/debug/ieee80211/phy*/wfx/send_pds`|
 
 ## PDS files details
 
-A firmware-version related **definitions** file is '#included' by the `.pds.in` file and pre-processed 
-by pds_compress (pretty much as a C pre-compiler would work)
+A firmware-version related **definitions** file is '#included' by the `.pds.in` file and pre-processed by pds_compress (pretty much as a C pre-compiler would work)
  to obtain a more compact file.
 
 ### PDS input files examples
@@ -124,7 +124,6 @@ as well as definitions (as _numbers_) for each **attribute value**. It correspon
 #define     GPIO_FEM_1              a
 #define     GPIO_FEM_2              b
 #define     GPIO_FEM_3              c
-. . .
 /*
  * Attribute values
  */
@@ -144,9 +143,9 @@ as well as definitions (as _numbers_) for each **attribute value**. It correspon
 #define tri      0
 #define func     1
 #define gpio     2
+
 ```
  
-
 #### `TEST_FEATURE.pds.in` minimal file for continuous Tx testing
 
 ```
@@ -179,14 +178,16 @@ as well as definitions (as _numbers_) for each **attribute value**. It correspon
 ```
 
 ## pds_compress details
+
 Use `pds_compress [options] INPUT [OUTPUT]` to compress a `.pds.in` file to a `.pds` file,
  ready to be sent to the WFX firmware.
 
-The `.pds` format is convenient to save time during execution, but it not human-friendly.
+The `.pds` format is convenient to save time during execution, but is not human-friendly.
 
 The `-t` or `--tinypds` option allows an easier readout. It's useful to check the output
  of pds_compress:
-  * Example output, resulting from `pds_compress example.pds.in --tynipds`
+  * Example output abstract, resulting from `pds_compress example.pds.in --tynipds`
+
 ```
 {
     a: {
@@ -201,20 +202,6 @@ The `-t` or `--tinypds` option allows an easier readout. It's useful to check th
             d: 0,
             e: A
         },
-        b: {
-            a: 4,
-            b: 0,
-            c: 0,
-            d: 0,
-            e: B
-        },
-        c: {
-            a: 4,
-            b: 0,
-            c: 0,
-            d: 0,
-            e: C
-        }
     }
 }
 
@@ -227,15 +214,18 @@ NB: Use `pds_compress --help' to get more information about possible pds_compres
 ### `.pds.in` file inclusion
 It is possible to `#include` a `.pds.in` file from another `.pds.in` file.
 
-For example, if the goal is to directly start using the TEST_FEATURE as soon as the driver is loaded,
- use (for Linux),
+For example, if the goal is to directly start using the TEST_FEATURE as soon as the driver is loaded, use (for Linux):
+ 
 ```
 pds_compress TEST_FEATURE.pds.in direct_tx_cw_channel_11_68dBm.pds
 sudo ln -sfn direct_tx_cw_channel_11_68dBm.pds /lib/firmware/wf200.pds
 sudo wfx_driver_reload
 ```
+
 based on the following file:
+
 #### `TEST_FEATURE.pds.in` file for continuous Tx testing at startup
+
 ```
 #include "example.pds.in"
 
@@ -263,18 +253,21 @@ based on the following file:
             MAX_OUTPUT_POWER: 68
         },
     },
+    
 ```
 
-Note that the only difference is in the `#include` line, where '#including' the original file allows
- using the resulting `.pds` file at startup. 
+Note that the only difference is in the `#include` line, where '#including' the original file
+allows using the resulting `.pds` file at startup. 
 
 ### Using `#define` in `.pds.in` files
 It is possible to 
+
 * Replace an attribute value by a TEXT_NAME in a `.pds.in` low-level file
 * `#define` the TEXT_NAME in the top-level `.pds.in` file
-* `#include` the low-level `.pds.in` file from teh top-level `.pds.in` file
+* `#include` the low-level `.pds.in` file from the top-level `.pds.in` file
 
-   * Example `TEST_FEATURE_CHANNEL_UNDER_TEST.pds.in`
+#### Example `TEST_FEATURE_CHANNEL_UNDER_TEST.pds.in`
+
 ```
 #include "example.pds.in"
 
@@ -282,29 +275,32 @@ It is possible to
     /* Tests and debug modes */
     /*************************/
     TEST_FEATURE_CFG_ELT: {
-        // Wi-Fi channel to use. Accepted range is from 1 to 14.
+        /* Wi-Fi channel to use. Accepted range is from 1 to 14. */
         TEST_CHANNEL: CHANNEL_UNDER_TEST,
-        // TEST_MODE selects the activated test feature: enum = 'rx', 'tx_packet', 'tx_cw'
+        /* TEST_MODE selects the activated test feature: enum = 'rx', 'tx_packet', 'tx_cw'
         TEST_MODE: tx_cw,
-        // TEST_IND period in ms at which an indication message is sent.
-        //       In the case of rx test, it returns the measurement results (PER)
+           TEST_IND period in ms at which an indication message is sent.
+               In the case of rx test, it returns the measurement results (PER)
         TEST_IND: 1000,
 
-        // CFG_TX_CW: additional configuration for tx_cw mode
+           CFG_TX_CW: additional configuration for tx_cw mode
+        */
         CFG_TX_CW: {
-            // CW_MODE CW mode: enum 'single' or 'dual'
+            /* CW_MODE CW mode: enum 'single' or 'dual' */
             CW_MODE: single,
-            // FREQ1 frequency offset -31 to 31 (in 312.5kHz)
+            /* FREQ1 frequency offset -31 to 31 (in 312.5kHz) */
             FREQ1: 1,
-            // FREQ2 frequency offset -31 to 31 (in 312.5kHz)
+            /* FREQ2 frequency offset -31 to 31 (in 312.5kHz) */
             FREQ2: 2,
-            // MAX_OUTPUT_POWER indicates the max Tx power value in quarters of dBm
-            MAX_OUTPUT_POWER: 68
+            /* MAX_OUTPUT_POWER indicates the max Tx power value in quarters of dBm
+            MAX_OUTPUT_POWER: 68 */
         },
     },
+    
 ```
+#### Example `TEST_CHANNEL.pds.in`
+     
 
-   * Example `TEST_CHANNEL.pds.in`
 ```
 #define CHANNEL_UNDER_TEST 11
 #include "TEST_FEATURE_CHANNEL_UNDER_TEST.pds.in"
@@ -312,7 +308,8 @@ It is possible to
 This would make it easy to sweep between channels in a test environment, 
 while keeping all other parameters identical
 
-   * Example execution (under Linux)
+#### Example execution (under Linux)
+
 ```
 pds_compress TEST_CHANNEL.pds.in /sys/kernel/debug/ieee80211/phy*/wfx/send_pds
 ```
